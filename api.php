@@ -37,7 +37,9 @@ function lastTweet(){
     $offset = $page * $count;
 
     $db = new SQLite3(TWEET_DB);
-    $sql = TWEET_BASE_QUERY . " LIMIT ${count} OFFSET (SELECT MAX(ROWID) FROM statuses) - ${offset}";
+    $sql = TWEET_BASE_QUERY . " WHERE statuses.ROWID BETWEEN
+        (SELECT MAX(statuses.ROWID) FROM statuses) - ${offset} + 1 AND
+        (SELECT MAX(statuses.ROWID) FROM statuses) - ${offset} + ${count}";
     echo getStatusesJson($db, $sql);
     $db->close();
 }
