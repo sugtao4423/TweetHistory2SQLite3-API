@@ -24,16 +24,24 @@ LEFT OUTER JOIN sources AS retweetedSource ON retweeted_statuses.source_id = ret
 
 header('Content-Type: application/json');
 
-$type = isset($_GET['t']) ? $_GET['t'] : 'lasttweet';
+$type  = isset($_GET['t']) ? $_GET['t'] : 'lasttweet';
+$page  = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+$count = isset($_GET['c']) ? (int)$_GET['c'] : 50;
+$query = isset($_GET['q']) ? $_GET['q'] : null;
 switch($type){
     case 'lasttweet':
-        lastTweet();
+        lastTweet($page, $count);
+        break;
+    case 'search':
+        if($query === null){
+            echo '[]';
+        }else{
+            searchTweet($query, $page, $count);
+        }
         break;
 }
 
-function lastTweet(){
-    $page = isset($_GET['p']) ? $_GET['p'] : 1;
-    $count = isset($_GET['c']) ? $_GET['c'] : 50;
+function lastTweet(int $page, int $count){
     $offset = $page * $count;
 
     $db = new SQLite3(TWEET_DB);
@@ -44,7 +52,19 @@ function lastTweet(){
     $db->close();
 }
 
-function getStatusesJson(SQLite3 $db, string $sql): string{
+function searchTweet(string $query, int $page, int $count){
+    $offset = ($page - 1) * $count;
+    $query = str_replace("'", "''", $query);
+
+    $db = new SQLite3(TWEET_DB);
+    $sql = TWEET_BASE_QUERY . " WHERE statuses.text LIKE '%${query}%'
+        ORDER BY statuses.id DESC
+        LIMIT ${count} OFFSET ${offset}";
+    echo getStatusesJson($db, $sql, true);
+    $db->close();
+}
+
+function getStatusesJson(SQLite3 $db, string $sql, bool $isReverse = false): string{
     $result = [];
     $query = $db->query($sql);
     while($q = $query->fetchArray(SQLITE3_ASSOC)){
@@ -59,6 +79,7 @@ function getStatusesJson(SQLite3 $db, string $sql): string{
 
         $result[] = $status;
     }
+    $result = $isReverse ? array_reverse($result) : $result;
     return json_encode($result, JSON_UNESCAPED_UNICODE);
 }
 
