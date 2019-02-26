@@ -151,7 +151,7 @@ function getMentionUsers(SQLite3 $db, array $userMentionIds): array{
     $query = $db->query($sql);
     while($q = $query->fetchArray(SQLITE3_ASSOC)){
         $result[] = [
-            'id' => $q['id'],
+            'id_str' => (string)$q['id'],
             'name' => $q['name'],
             'screen_name' => $q['screen_name']
         ];
@@ -171,7 +171,7 @@ function getMedias(SQLite3 $db, array $mediaIds): array{
     $query = $db->query($sql);
     while($q = $query->fetchArray(SQLITE3_ASSOC)){
         $result[] = [
-            'id' => $q['id'],
+            'id_str' => (string)$q['id'],
             'url' => $q['url'],
             'media_url_https' => $q['media_url_https'],
             'display_url' => $q['display_url'],
