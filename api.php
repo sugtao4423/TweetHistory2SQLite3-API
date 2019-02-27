@@ -24,6 +24,11 @@ LEFT OUTER JOIN sources AS retweetedSource ON retweeted_statuses.source_id = ret
 
 header('Content-Type: application/json');
 
+if(!file_exists(TWEET_DB)){
+    echo '[]';
+    exit(1);
+}
+
 $type  = isset($_GET['t']) ? $_GET['t'] : 'lasttweet';
 $page  = isset($_GET['p']) ? (int)$_GET['p'] : 1;
 $count = isset($_GET['c']) ? (int)$_GET['c'] : 50;
