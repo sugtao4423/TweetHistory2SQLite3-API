@@ -38,7 +38,7 @@ switch($type){
         lastTweet($page, $count);
         break;
     case 'search':
-        if($query === null){
+        if(is_null($query)){
             echo '[]';
         }else{
             searchTweet($query, $page, $count);
@@ -75,7 +75,7 @@ function getStatusesJson(SQLite3 $db, string $sql, bool $isReverse = false): str
     while($q = $query->fetchArray(SQLITE3_ASSOC)){
         $status = queryResult2Array($db, $q);
 
-        $isRetweetExists = ($q['retweeted_status_id'] !== null);
+        $isRetweetExists = isset($q['retweeted_status_id']);
         if($isRetweetExists){
             $status = array_merge($status, [
                 'retweeted_status' => queryResult2Array($db, $q, true)
@@ -111,9 +111,9 @@ function queryResult2Array(SQLite3 $db, array $queryResult, bool $isRetweet = fa
     $sourceName                 = $queryResult["${rt}source_name"];
     $sourceUrl                  = $queryResult["${rt}source_url"];
 
-    $userMentionIds = ($queryResult["${rt}user_mention_ids"] === null)  ? [] : explode(',', $queryResult["${rt}user_mention_ids"]);
-    $mediaIds       = ($queryResult["${rt}media_ids"] === null)         ? [] : explode(',', $queryResult["${rt}media_ids"]);
-    $urlIds         = ($queryResult["${rt}url_ids"] === null)           ? [] : explode(',', $queryResult["${rt}url_ids"]);
+    $userMentionIds = is_null($queryResult["${rt}user_mention_ids"])  ? [] : explode(',', $queryResult["${rt}user_mention_ids"]);
+    $mediaIds       = is_null($queryResult["${rt}media_ids"])         ? [] : explode(',', $queryResult["${rt}media_ids"]);
+    $urlIds         = is_null($queryResult["${rt}url_ids"])           ? [] : explode(',', $queryResult["${rt}url_ids"]);
 
     $arr = [
         'id_str' => (string)$id,
@@ -121,7 +121,7 @@ function queryResult2Array(SQLite3 $db, array $queryResult, bool $isRetweet = fa
         'created_at' => (string)$createdAt,
     ];
 
-    if($inReplyToStatusId !== null){
+    if(isset($inReplyToStatusId)){
         $arr = array_merge($arr, [
             'in_reply_to_status_id_str' => (string)$inReplyToStatusId,
             'in_reply_to_user_id_str' => (string)$inReplyToUserId,
@@ -129,7 +129,7 @@ function queryResult2Array(SQLite3 $db, array $queryResult, bool $isRetweet = fa
         ]);
     }
 
-    if($geo !== null){
+    if(isset($geo)){
         $arr = array_merge($arr, [
             'geo' => [
                 'type' => 'Point',
