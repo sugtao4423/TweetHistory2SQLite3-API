@@ -29,10 +29,10 @@ if(!file_exists(TWEET_DB)){
     exit(1);
 }
 
-$type  = isset($_GET['t']) ? $_GET['t'] : 'lasttweet';
-$page  = isset($_GET['p']) ? (int)$_GET['p'] : 1;
-$count = isset($_GET['c']) ? (int)$_GET['c'] : 50;
-$query = isset($_GET['q']) ? $_GET['q'] : null;
+$type  =        $_GET['t'] ?? 'lasttweet';
+$page  = (int) ($_GET['p'] ?? 1);
+$count = (int) ($_GET['c'] ?? 50);
+$query =        $_GET['q'];
 switch($type){
     case 'lasttweet':
         lastTweet($page, $count);
